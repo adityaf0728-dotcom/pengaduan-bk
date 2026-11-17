@@ -43,6 +43,32 @@
                 </div>
             @endif
 
+            <!-- ========================================== -->
+            <!-- FORM IMPORT EXCEL KHUSUS SISWA MASAL       -->
+            <!-- ========================================== -->
+            <div class="mb-8 p-6 rounded-2xl bg-blue-50/50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 relative z-10">
+                <h3 class="text-xl font-bold text-gray-800 dark:text-white mb-2">📥 Import Data Siswa (Excel)</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">Gunakan format baris pertama: <strong>nama, email, nisn, kelas, angkatan</strong>. Password akan otomatis menggunakan NISN masing-masing.</p>
+                
+                <form action="{{ route('admin.users.import') }}" method="POST" enctype="multipart/form-data" class="flex flex-col sm:flex-row items-center gap-4">
+                    @csrf
+                    <input type="file" name="file" accept=".xlsx, .xls, .csv" required class="block w-full text-sm text-gray-600 dark:text-gray-400 file:mr-4 file:py-3 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-bold file:bg-blue-600 file:text-white hover:file:bg-blue-700 cursor-pointer bg-white dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm">
+                    
+                    <button type="submit" class="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-xl transition-all shadow-md flex-shrink-0">
+                        Import Excel
+                    </button>
+                </form>
+            </div>
+
+            <!-- GARIS PEMISAH -->
+            <div class="relative flex items-center py-5 z-10">
+                <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+                <span class="flex-shrink-0 mx-4 text-gray-400 text-sm font-bold tracking-wider">ATAU TAMBAH MANUAL</span>
+                <div class="flex-grow border-t border-gray-200 dark:border-gray-700"></div>
+            </div>
+            <!-- ========================================== -->
+
+            <!-- FORM MANUAL (TETAP SEPERTI SEMULA) -->
             <form method="POST" action="{{ route('admin.users.store') }}" class="space-y-6 relative z-10" autocomplete="off">
                 @csrf
                 
@@ -50,11 +76,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Nama Lengkap</label>
-                        <input type="text" name="name" value="{{ old('name') }}" required placeholder="Masukkan nama lengkap" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
+                        <input type="text" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Alamat Email (Untuk Login)</label>
-                        <input type="email" name="email" value="{{ old('email') }}" required placeholder="Masukkan alamat email" autocomplete="new-password" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
+                        <input type="email" name="email" value="{{ old('email') }}" placeholder="Masukkan alamat email" autocomplete="new-password" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
                     </div>
                 </div>
                 
@@ -62,7 +88,7 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Hak Akses (Role)</label>
-                        <select name="role" id="roleSelect" required class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm cursor-pointer">
+                        <select name="role" id="roleSelect" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm cursor-pointer">
                             <option value="siswa" {{ old('role') == 'siswa' ? 'selected' : '' }}>🎓 Siswa</option>
                             <option value="guru_bk" {{ old('role') == 'guru_bk' ? 'selected' : '' }}>👨‍🏫 Guru BK</option>
                         </select>
@@ -73,11 +99,11 @@
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Password</label>
-                        <input type="password" name="password" required placeholder="Minimal 8 karakter" autocomplete="new-password" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
+                        <input type="password" name="password" placeholder="Minimal 8 karakter" autocomplete="new-password" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
                     </div>
                     <div>
                         <label class="block text-sm font-bold mb-2 text-gray-700 dark:text-gray-300">Konfirmasi Password</label>
-                        <input type="password" name="password_confirmation" required placeholder="Ulangi password" autocomplete="new-password" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
+                        <input type="password" name="password_confirmation" placeholder="Ulangi password" autocomplete="new-password" class="w-full rounded-2xl border-gray-300 dark:border-gray-600 dark:bg-gray-900/50 dark:text-white px-5 py-4 focus:ring-4 focus:ring-blue-500/20 focus:border-blue-500 transition-all shadow-sm">
                     </div>
                 </div>
 
@@ -103,7 +129,7 @@
                 
                 <div class="pt-4">
                     <button type="submit" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-extrabold text-lg py-4 px-6 rounded-2xl transition-all shadow-lg hover:shadow-xl transform hover:-translate-y-1">
-                        Simpan Pengguna Baru
+                        Simpan Pengguna Manual
                     </button>
                 </div>
             </form>

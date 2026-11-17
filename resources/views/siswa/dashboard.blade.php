@@ -43,6 +43,13 @@
                             <span class="font-semibold">Pelaporan & Riwayat</span>
                         </a>
                     </li>
+                    <li>
+                        <!-- Tambahan Menu Profil -->
+                        <a href="{{ route('siswa.profil') }}" class="flex items-center gap-3 p-3 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-2xl transition-all duration-300">
+                            <span class="text-xl">👤</span>
+                            <span class="font-semibold">Profil</span>
+                        </a>
+                    </li>
                 </ul>
             </div>
 

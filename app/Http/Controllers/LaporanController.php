@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Laporan;
 use App\Models\Tanggapan;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -14,52 +15,67 @@ class LaporanController extends Controller
     // =====================================
     public function create()
     {
+        // Ambil daftar guru bk untuk ditampilkan di form pilihan siswa
+        $gurus = User::where('role', 'guru_bk')->get();
+
         // Ambil laporan milik siswa yang sedang login beserta riwayat chat-nya
-        $laporans = Laporan::with(['tanggapans.user'])
+        $laporans = Laporan::with(['tanggapans.user', 'guru'])
                     ->where('user_id', Auth::id())
                     ->orderBy('created_at', 'desc')
                     ->get();
 
-        // Diperbarui ke view siswa.laporan agar data $laporans tampil di halaman pelaporan
-        return view('siswa.laporan', compact('laporans')); 
+        // Kirim data $laporans dan $gurus ke view
+        return view('siswa.laporan', compact('laporans', 'gurus')); 
     }
 
     public function store(Request $request)
     {
         $request->validate([
+            'kategori' => 'required|string',
             'isi_laporan' => 'required|string',
+            'guru_id' => 'required|exists:users,id',
+            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // Validasi file laporan
         ]);
+
+        $lampiranPath = null;
+        if ($request->hasFile('lampiran')) {
+            $lampiranPath = $request->file('lampiran')->store('lampiran', 'public');
+        }
 
         Laporan::create([
             'user_id' => Auth::id(),
+            'guru_id' => $request->guru_id,
+            'kategori' => $request->kategori,
             'isi_laporan' => $request->isi_laporan,
+            'lampiran' => $lampiranPath, // Simpan path ke laporans
             'status' => 'menunggu',
         ]);
 
-        return back()->with('success', 'Laporan berhasil dikirim. Silakan tunggu balasan dari Guru BK.');
+        return back()->with('success', 'Laporan berhasil dikirim ke Guru BK pilihanmu. Silakan tunggu balasan.');
     }
 
     // =====================================
     // BAGIAN GURU BK
     // =====================================
     
-    // [FUNGSI BARU] Menampilkan Dashboard beserta statistik Laporan
     public function dashboardGuru()
     {
-        // Menghitung semua laporan yang ada
-        $totalLaporanMasuk = Laporan::count(); 
+        // Menghitung laporan masuk KHUSUS untuk guru bk yang sedang login
+        $totalLaporanMasuk = Laporan::where('guru_id', Auth::id())->count(); 
 
-        // Menghitung laporan yang sudah tidak berstatus 'menunggu'
-        $totalLaporanTerbalas = Laporan::where('status', '!=', 'menunggu')->count();
+        // Menghitung laporan yang sudah tidak berstatus 'menunggu' KHUSUS untuk guru bk ini
+        $totalLaporanTerbalas = Laporan::where('guru_id', Auth::id())
+                                       ->where('status', '!=', 'menunggu')
+                                       ->count();
 
-        // Me-return view dashboard guru bk beserta variabel angkanya
         return view('gurubk.dashboard', compact('totalLaporanMasuk', 'totalLaporanTerbalas'));
     }
 
     public function indexGuru()
     {
-        // Ambil semua laporan beserta data siswa dan riwayat chat-nya
+        // Ambil laporan yang HANYA DITUJUKAN kepada guru bk yang sedang login
         $laporans = Laporan::with(['user', 'tanggapans.user'])
+                    ->where('guru_id', Auth::id())
                     ->orderBy('created_at', 'desc')
                     ->get();
                     
@@ -81,27 +97,24 @@ class LaporanController extends Controller
     {
         $request->validate([
             'pesan' => 'required|string',
+            'lampiran' => 'nullable|file|mimes:jpg,jpeg,png,pdf,doc,docx|max:5120', // Maksimal 5MB
         ]);
-
         $laporan = Laporan::findOrFail($id);
-
-        // Mencegah kirim pesan jika status sudah selesai
         if ($laporan->status === 'selesai') {
             return back()->with('error', 'Laporan ini sudah ditutup.');
         }
+        // Proses penyimpanan file jika ada
+        $lampiranPath = null;
+        if ($request->hasFile('lampiran')) {
+            $lampiranPath = $request->file('lampiran')->store('lampiran', 'public');
+        }
 
-        // Simpan pesan ke tabel tanggapans
         Tanggapan::create([
             'laporan_id' => $laporan->id,
             'user_id' => Auth::id(),
             'pesan' => $request->pesan,
+            'lampiran' => $lampiranPath, // Menyimpan path file ke database
         ]);
-
-        // (Opsional) Update status laporan menjadi 'diproses' jika guru yang membalas
-        if (Auth::user()->role === 'guru_bk' && $laporan->status === 'menunggu') {
-            $laporan->update(['status' => 'diproses']);
-        }
-
         return back()->with('success', 'Pesan terkirim!');
     }
 }

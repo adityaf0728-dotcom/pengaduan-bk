@@ -79,9 +79,14 @@
                             <!-- HEADER YANG BISA DIKLIK -->
                             <div class="flex justify-between items-center p-6 cursor-pointer" onclick="toggleDetail({{ $laporan->id }})">
                                 <div>
-                                    <h4 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2">
+                                    <h4 class="text-lg font-bold text-gray-800 dark:text-white flex items-center gap-2 flex-wrap">
                                         👤 {{ $laporan->user->name ?? 'Siswa' }} 
                                         <span class="text-sm font-normal text-gray-500">(Kelas: {{ $laporan->user->kelas ?? '-' }})</span>
+                                        
+                                        <!-- BADGE KATEGORI -->
+                                        <span class="ml-2 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/50 dark:text-indigo-300 text-xs font-semibold px-2.5 py-0.5 rounded-md border border-indigo-200 dark:border-indigo-700">
+                                            Topik: {{ $laporan->kategori ?? 'Umum' }}
+                                        </span>
                                     </h4>
                                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">🕒 {{ $laporan->created_at->format('d M Y - H:i') }}</p>
                                 </div>
@@ -95,7 +100,7 @@
                                 </div>
                             </div>
                             
-                            <!-- KONTEN DETAIL LENGKAP (TIDAK TERLIHAT SEBELUM DIKLIK) -->
+                            <!-- KONTEN DETAIL LENGKAP -->
                             <div id="detail-{{ $laporan->id }}" class="hidden border-t border-gray-100 dark:border-gray-700 p-6 bg-gray-50/50 dark:bg-gray-800/50 rounded-b-2xl">
                                 
                                 <!-- Laporan Utama dari Siswa -->
@@ -104,6 +109,22 @@
                                         <span class="text-xs font-semibold text-gray-500 ml-1">Laporan Awal - {{ $laporan->user->name }}</span>
                                         <div class="mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-2xl rounded-tl-none shadow-sm text-gray-800 dark:text-gray-200">
                                             {{ $laporan->isi_laporan }}
+
+                                            <!-- TAMPILKAN LAMPIRAN LAPORAN AWAL SISWA -->
+                                            @if($laporan->lampiran)
+                                                <div class="mt-3 pt-3 border-t border-gray-100 dark:border-gray-600">
+                                                    <p class="text-xs font-semibold text-gray-500 dark:text-gray-400 mb-2">📎 Bukti Lampiran:</p>
+                                                    @if(in_array(strtolower(pathinfo($laporan->lampiran, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png']))
+                                                        <a href="{{ asset('storage/' . $laporan->lampiran) }}" target="_blank">
+                                                            <img src="{{ asset('storage/' . $laporan->lampiran) }}" alt="Bukti Lampiran" class="max-w-xs sm:max-w-sm rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm hover:opacity-90 transition-opacity">
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ asset('storage/' . $laporan->lampiran) }}" target="_blank" class="inline-flex items-center gap-2 text-sm bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900/50 px-3 py-2 rounded-xl border border-blue-200 dark:border-blue-800 transition-colors">
+                                                            📄 <u>Buka Dokumen Lampiran</u>
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            @endif
                                         </div>
                                     </div>
                                 </div>
@@ -117,6 +138,21 @@
                                                 <span class="text-xs font-semibold text-gray-500 mr-1">Anda (Guru BK) - {{ $tanggapan->created_at->format('H:i, d M') }}</span>
                                                 <div class="mt-1 bg-blue-500 text-white p-4 rounded-2xl rounded-tr-none shadow-sm text-left inline-block">
                                                     {{ $tanggapan->pesan }}
+
+                                                    <!-- TAMPILKAN LAMPIRAN CHAT GURU BK -->
+                                                    @if($tanggapan->lampiran)
+                                                        <div class="mt-3 pt-2 border-t border-blue-400/50">
+                                                            @if(in_array(strtolower(pathinfo($tanggapan->lampiran, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png']))
+                                                                <a href="{{ asset('storage/' . $tanggapan->lampiran) }}" target="_blank">
+                                                                    <img src="{{ asset('storage/' . $tanggapan->lampiran) }}" alt="Lampiran" class="max-w-xs rounded-xl border border-blue-300 shadow-sm hover:opacity-90 transition-opacity">
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ asset('storage/' . $tanggapan->lampiran) }}" target="_blank" class="inline-flex items-center gap-2 text-sm bg-white/20 hover:bg-white/30 text-white px-3 py-2 rounded-xl transition-colors">
+                                                                    📄 <u>Buka Lampiran Dokumen</u>
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -127,6 +163,21 @@
                                                 <span class="text-xs font-semibold text-gray-500 ml-1">{{ $tanggapan->user->name }} - {{ $tanggapan->created_at->format('H:i, d M') }}</span>
                                                 <div class="mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 p-4 rounded-2xl rounded-tl-none shadow-sm text-gray-800 dark:text-gray-200">
                                                     {{ $tanggapan->pesan }}
+
+                                                    <!-- TAMPILKAN LAMPIRAN CHAT SISWA -->
+                                                    @if($tanggapan->lampiran)
+                                                        <div class="mt-3 pt-2 border-t border-gray-100 dark:border-gray-600">
+                                                            @if(in_array(strtolower(pathinfo($tanggapan->lampiran, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png']))
+                                                                <a href="{{ asset('storage/' . $tanggapan->lampiran) }}" target="_blank">
+                                                                    <img src="{{ asset('storage/' . $tanggapan->lampiran) }}" alt="Lampiran" class="max-w-xs rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm hover:opacity-90 transition-opacity">
+                                                                </a>
+                                                            @else
+                                                                <a href="{{ asset('storage/' . $tanggapan->lampiran) }}" target="_blank" class="inline-flex items-center gap-2 text-sm bg-gray-100 dark:bg-gray-600 hover:bg-gray-200 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-200 px-3 py-2 rounded-xl transition-colors">
+                                                                    📄 <u>Buka Lampiran Dokumen</u>
+                                                                </a>
+                                                            @endif
+                                                        </div>
+                                                    @endif
                                                 </div>
                                             </div>
                                         </div>
@@ -136,10 +187,22 @@
                                 <!-- Form Balas Pesan -->
                                 @if($laporan->status == 'menunggu')
                                     <div class="mt-6 border-t border-gray-200 dark:border-gray-700 pt-6">
-                                        <form action="{{ route('laporan.tanggapan', $laporan->id) }}" method="POST" class="flex gap-4">
+                                        <form action="{{ route('laporan.tanggapan', $laporan->id) }}" method="POST" enctype="multipart/form-data" class="space-y-2">
                                             @csrf
-                                            <input type="text" name="pesan" class="flex-1 rounded-xl border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Ketik balasan Anda di sini..." required>
-                                            <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition-all">Kirim</button>
+                                            <div class="flex gap-3">
+                                                <div class="flex-1 flex gap-2">
+                                                    <input type="text" name="pesan" class="flex-1 rounded-xl border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 dark:text-white focus:ring-blue-500 focus:border-blue-500 shadow-sm" placeholder="Ketik balasan Anda di sini..." required>
+                                                    
+                                                    <!-- Tombol Lampiran File/Gambar -->
+                                                    <label class="cursor-pointer bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-600 dark:text-gray-300 flex items-center justify-center px-4 rounded-xl border border-gray-300 dark:border-gray-600 transition-colors" title="Lampirkan File/Gambar">
+                                                        <span class="text-lg">📎</span>
+                                                        <input type="file" name="lampiran" class="hidden" accept=".jpg,.jpeg,.png,.pdf,.doc,.docx" onchange="showFileName(this, {{ $laporan->id }})">
+                                                    </label>
+                                                </div>
+                                                <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-xl shadow-md transition-all">Kirim</button>
+                                            </div>
+                                            <!-- Info Nama File yang Dipilih -->
+                                            <p id="file-name-{{ $laporan->id }}" class="text-xs text-blue-600 dark:text-blue-400 font-medium hidden"></p>
                                         </form>
 
                                         <!-- Tombol Selesaikan Kasus -->
@@ -201,10 +264,21 @@
             
             if(detail.classList.contains('hidden')) {
                 detail.classList.remove('hidden');
-                icon.style.transform = 'rotate(180deg)'; // Putar ikon panah ke atas
+                icon.style.transform = 'rotate(180deg)';
             } else {
                 detail.classList.add('hidden');
-                icon.style.transform = 'rotate(0deg)'; // Kembalikan ikon panah ke bawah
+                icon.style.transform = 'rotate(0deg)';
+            }
+        }
+
+        // Menampilkan nama file yang dipilih sebelum dikirim
+        function showFileName(input, id) {
+            const label = document.getElementById('file-name-' + id);
+            if (input.files && input.files.length > 0) {
+                label.textContent = '📎 File siap dikirim: ' + input.files[0].name;
+                label.classList.remove('hidden');
+            } else {
+                label.classList.add('hidden');
             }
         }
     </script>

@@ -13,6 +13,7 @@ class Tanggapan extends Model
         'laporan_id',
         'user_id',
         'pesan',
+        'lampiran', // [TAMBAHAN BARU] Untuk menyimpan nama file lampiran/gambar
     ];
 
     // Relasi balik ke Laporan
